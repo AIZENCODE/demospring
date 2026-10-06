@@ -52,4 +52,19 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(respuesta);
     }
+
+    @ExceptionHandler(EmailDuplicadoException.class)
+    public ResponseEntity<Map<String, Object>> manejarEmailDuplicado(
+            EmailDuplicadoException ex) {
+
+        Map<String, Object> respuesta = new HashMap<>();
+
+        respuesta.put("status", 409);
+        respuesta.put("mensaje", ex.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(respuesta);
+    }
+
 }

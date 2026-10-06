@@ -1,5 +1,6 @@
 package com.simple.demo.service;
 
+import com.simple.demo.exception.EmailDuplicadoException;
 import com.simple.demo.model.Usuario;
 import com.simple.demo.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,15 @@ public class UsuarioService {
     }
 
     public Usuario crear(Usuario usuario) {
+
+        boolean existe = usuarioRepository.existsByEmail(
+                usuario.getEmail()
+        );
+
+        if (existe) {
+            throw new EmailDuplicadoException(usuario.getEmail());
+        }
+
         return usuarioRepository.save(usuario);
     }
 
@@ -38,10 +48,16 @@ public class UsuarioService {
     public Usuario actualizar(Long id, Usuario datosNuevos) {
 
         Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() ->
-                        new UsuarioNoEncontradoException(id)
+                .orElseThrow(() -> new UsuarioNoEncontradoException(id));
 
-                );
+        boolean emailOcupado = usuarioRepository.existsByEmailAndIdNot(
+                datosNuevos.getEmail(),
+                id
+        );
+
+        if (emailOcupado) {
+            throw new EmailDuplicadoException(datosNuevos.getEmail());
+        }
 
         usuario.setNombre(datosNuevos.getNombre());
         usuario.setEmail(datosNuevos.getEmail());
